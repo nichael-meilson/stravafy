@@ -1,6 +1,7 @@
 import requests
 import yaml
 import webbrowser
+from utils.encryption import Encryption
 
 def read_config() -> dict:
     with open('./src/config.yaml', 'r') as stream:
@@ -12,7 +13,7 @@ def read_config() -> dict:
 class StravaAPIAdapter:
     def __init__(self) -> None:
         config = read_config()
-        self.client_id: str = config["strava_credentials"]["client_id"]
+        self.client_id: str = Encryption.decrypt_string(config["strava_credentials"]["client_id"])
         self.session: requests.Session = requests.session()
 
     def authorize_strava_api(self):
