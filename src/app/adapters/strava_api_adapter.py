@@ -21,7 +21,6 @@ class StravaAPIAdapter:
         redirect_uri = "https://localhost/exchange_token"
 
         auth_url = f"{url}?client_id={self.client_id}&redirect_uri={redirect_uri}&response_type=code&scope=read&approval_prompt=force"
-        # resp = self.session.get(url=url, params=params, verify=False) # TODO: remove 'verify' later
         webbrowser.open(auth_url)
         pass
 
