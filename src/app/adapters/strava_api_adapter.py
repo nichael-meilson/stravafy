@@ -4,6 +4,7 @@ import webbrowser
 from src.utils.encryption import Encryption
 from src.utils.strava_auth_handler import StravaAuthHandler
 from starlette.exceptions import HTTPException
+from typing import List, Dict
 
 def read_config() -> dict:
     with open('./src/config.yaml', 'r') as stream:
@@ -11,6 +12,17 @@ def read_config() -> dict:
             return yaml.safe_load(stream)
         except yaml.YAMLError as e:
             raise e
+        
+
+def _get_activity_ids_from_activity_list(activities: List[Dict], limit: int) -> List:
+    activity_ids = []
+    for activity in activities:
+        activity_ids.append(activity.get("id"))
+    if limit <= len(activity_ids):
+        return activity_ids[0:limit]
+    else:
+        return activity_ids
+
 
 class StravaAPIAdapter:
     client_id: str
@@ -63,4 +75,15 @@ class StravaAPIAdapter:
         return resp.json()
     
     def get_strava_activity_timeseries(self, activities: str):
-        print(activities)
+        heartrates = []
+        activity_ids = _get_activity_ids_from_activity_list(activities, limit=5)
+        for id in activity_ids:
+            url = f"https://www.strava.com/api/v3/activities/{id}/streams"
+            headers = {"Authorization": f"Bearer {self.access_token}"}
+            params = {
+                "key_by_type": True,
+                "keys": "time,heartrate,ditance"
+            }
+            resp = self.session.get(url, headers=headers, params=params, verify=False)
+            heartrates.append(resp.json())
+        return heartrates
