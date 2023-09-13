@@ -40,7 +40,7 @@ class StravaAPIAdapter:
                 "code": handler_response.auth_code,
                 "grant_type": "authorization_code"
             }
-            response = requests.post(token_url, data=payload)
+            response = requests.post(token_url, data=payload, verify=False)
             access_token = response.json().get('access_token')
             return access_token
         else:
@@ -59,8 +59,8 @@ class StravaAPIAdapter:
             "before": 1692061200,
             "after": 1672534800
         }
-        resp = self.session.get(URL, headers=headers, params=params)
+        resp = self.session.get(URL, headers=headers, params=params ,verify=False)
         return resp.json()
     
-    def get_strava_activity_timeseries():
-        pass
+    def get_strava_activity_timeseries(self, activities: str):
+        print(activities)
