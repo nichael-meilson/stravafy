@@ -1,6 +1,7 @@
 import requests
 import yaml
 import webbrowser
+from datetime import datetime
 from src.utils.encryption import Encryption
 from src.utils.strava_auth_handler import StravaAuthHandler
 from starlette.exceptions import HTTPException
@@ -22,6 +23,12 @@ def _get_activity_ids_from_activity_list(activities: List[Dict], limit: int) -> 
         return activity_ids[0:limit]
     else:
         return activity_ids
+
+
+def _convert_string_date_to_epoch(date: str) -> int:
+    date_object = datetime.strptime(date, "%Y-%m-%d")
+    epoch_time = (date_object - datetime(1970, 1, 1)).total_seconds()
+    return epoch_time 
 
 
 class StravaAPIAdapter:
@@ -64,18 +71,21 @@ class StravaAPIAdapter:
         resp = self.session.get(URL, headers=headers)
         return resp.json()
 
-    def get_strava_athlete_activities(self):
+    def get_strava_athlete_activities(self, start: str, end: str) -> str:
+        start_epoch = _convert_string_date_to_epoch(start)
+        end_epoch = _convert_string_date_to_epoch(end)
+
         URL = "https://www.strava.com/api/v3/athlete/activities"
         headers = {"Authorization": f"Bearer {self.access_token}"}
         params = {
-            "before": 1692061200,
-            "after": 1672534800
+            "before": end_epoch,
+            "after": start_epoch
         }
         resp = self.session.get(URL, headers=headers, params=params ,verify=False)
         return resp.json()
     
-    def get_strava_activity_timeseries(self, activities: str):
-        heartrates = []
+    def get_strava_activity_timeseries(self, activities: str) -> Dict[str, str]:
+        streams = {}
         activity_ids = _get_activity_ids_from_activity_list(activities, limit=5)
         for id in activity_ids:
             url = f"https://www.strava.com/api/v3/activities/{id}/streams"
@@ -85,5 +95,5 @@ class StravaAPIAdapter:
                 "keys": "time,heartrate,ditance"
             }
             resp = self.session.get(url, headers=headers, params=params, verify=False)
-            heartrates.append(resp.json())
-        return heartrates
+            streams[id] = (resp.json())
+        return streams
