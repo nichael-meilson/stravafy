@@ -1,30 +1,12 @@
 import requests
-import yaml
 import webbrowser
 from datetime import datetime
+from src.utils import read_config
 from src.utils.encryption import Encryption
 from src.utils.strava_auth_handler import StravaAuthHandler
 from src.models.activities import Activity
 from starlette.exceptions import HTTPException
 from typing import List, Dict
-
-def read_config() -> dict:
-    with open('./src/config.yaml', 'r') as stream:
-        try: 
-            return yaml.safe_load(stream)
-        except yaml.YAMLError as e:
-            raise e
-        
-
-def _get_activity_feature_from_activity_list(activities: List[Dict], feature: str, limit: int = 5) -> List:
-    activity_ids = []
-    for activity in activities:
-        activity_ids.append(activity.get("id"))
-    if limit <= len(activity_ids):
-        return activity_ids[0:limit]
-    else:
-        return activity_ids
-
 
 def _convert_string_date_to_epoch(date: str) -> int:
     date_object = datetime.strptime(date, "%Y-%m-%d")
