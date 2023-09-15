@@ -4,6 +4,7 @@ import webbrowser
 from datetime import datetime
 from src.utils.encryption import Encryption
 from src.utils.strava_auth_handler import StravaAuthHandler
+from src.models.activities import Activity
 from starlette.exceptions import HTTPException
 from typing import List, Dict
 
@@ -64,14 +65,8 @@ class StravaAPIAdapter:
             return access_token
         else:
             raise HTTPException("No auth code returned")
-        
-    def get_strava_athlete(self):
-        URL = "https://www.strava.com/api/v3/athlete"
-        headers = {"Authorization": f"Bearer {self.access_token}"}
-        resp = self.session.get(URL, headers=headers)
-        return resp.json()
 
-    def get_strava_athlete_activities(self, start: str, end: str) -> str:
+    def get_strava_activities(self, start: str, end: str) -> str:
         start_epoch = _convert_string_date_to_epoch(start)
         end_epoch = _convert_string_date_to_epoch(end)
 
@@ -82,23 +77,37 @@ class StravaAPIAdapter:
             "after": start_epoch
         }
         resp = self.session.get(URL, headers=headers, params=params ,verify=False)
-        data = resp.json()
         return resp.json()
     
-    def get_strava_activity_streams(self, activities: str) -> Dict[str, str]:
-        streams = {}
+    def model_strava_activities(self, activities: List) -> List[Activity]:
+        modelled_activities_list = []
         for activity in activities:
-            id = _get_activity_feature_from_activity_list(activity, "id")
-            start_date = _get_activity_feature_from_activity_list(activity, "start_date")
-
-            url = f"https://www.strava.com/api/v3/activities/{id}/streams"
+            modelled_activity = Activity(
+                id=activity.get('id'),
+                athlete_id=activity.get('athlete').get('id'),
+                activity_type=activity.get('type'),
+                timezone=activity.get('timezone'),
+                start_date=activity.get('start_date'),
+                suffer_score=activity.get('suffer_score')                
+            )
+            modelled_activities_list.append(modelled_activity)
+        return modelled_activities_list
+    
+    def get_strava_activity_streams(self, activities: List[Activity]) -> List[Activity]:
+        """
+        Adds streams to activities
+        """
+        activities_with_streams = []
+        for activity in activities:
+            url = f"https://www.strava.com/api/v3/activities/{activity.id}/streams"
             headers = {"Authorization": f"Bearer {self.access_token}"}
             params = {
                 "key_by_type": True,
                 "keys": "time,heartrate,ditance"
             }
             resp = self.session.get(url, headers=headers, params=params, verify=False)
-            streams[id] = (resp.json())
-        return streams
+            activity.set_streams(resp.json())
+            activities_with_streams.append(activity)
+        return activities_with_streams
 
 
