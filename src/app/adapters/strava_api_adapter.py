@@ -15,7 +15,7 @@ def read_config() -> dict:
             raise e
         
 
-def _get_activity_ids_from_activity_list(activities: List[Dict], limit: int) -> List:
+def _get_activity_feature_from_activity_list(activities: List[Dict], feature: str, limit: int = 5) -> List:
     activity_ids = []
     for activity in activities:
         activity_ids.append(activity.get("id"))
@@ -82,12 +82,15 @@ class StravaAPIAdapter:
             "after": start_epoch
         }
         resp = self.session.get(URL, headers=headers, params=params ,verify=False)
+        data = resp.json()
         return resp.json()
     
-    def get_strava_activity_timeseries(self, activities: str) -> Dict[str, str]:
+    def get_strava_activity_streams(self, activities: str) -> Dict[str, str]:
         streams = {}
-        activity_ids = _get_activity_ids_from_activity_list(activities, limit=5)
-        for id in activity_ids:
+        for activity in activities:
+            id = _get_activity_feature_from_activity_list(activity, "id")
+            start_date = _get_activity_feature_from_activity_list(activity, "start_date")
+
             url = f"https://www.strava.com/api/v3/activities/{id}/streams"
             headers = {"Authorization": f"Bearer {self.access_token}"}
             params = {
@@ -97,3 +100,5 @@ class StravaAPIAdapter:
             resp = self.session.get(url, headers=headers, params=params, verify=False)
             streams[id] = (resp.json())
         return streams
+
+

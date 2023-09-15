@@ -6,6 +6,7 @@ if __name__ == "__main__":
     # activities = adapter.get_strava_athlete_activities()
     with open('tests/strava_activities.json', 'r') as file:
         activities = json.load(file)
-        adapter.get_strava_activity_timeseries(activities)
+        activities = activities[0:5]
+        adapter.get_strava_activity_streams(activities)
 
        
