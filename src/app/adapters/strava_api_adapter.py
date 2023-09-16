@@ -42,7 +42,7 @@ class StravaAPIAdapter:
                 "code": handler_response.auth_code,
                 "grant_type": "authorization_code"
             }
-            response = requests.post(token_url, data=payload, verify=False)
+            response = requests.post(token_url, data=payload)
             access_token = response.json().get('access_token')
             return access_token
         else:
@@ -58,7 +58,7 @@ class StravaAPIAdapter:
             "before": end_epoch,
             "after": start_epoch
         }
-        resp = self.session.get(URL, headers=headers, params=params ,verify=False)
+        resp = self.session.get(URL, headers=headers, params=params)
         return resp.json()
     
     def model_strava_activities(self, activities: List) -> List[Activity]:
@@ -87,7 +87,7 @@ class StravaAPIAdapter:
                 "key_by_type": True,
                 "keys": "time,heartrate,ditance"
             }
-            resp = self.session.get(url, headers=headers, params=params, verify=False)
+            resp = self.session.get(url, headers=headers, params=params)
             activity.set_streams(resp.json())
             activities_with_streams.append(activity)
         return activities_with_streams
