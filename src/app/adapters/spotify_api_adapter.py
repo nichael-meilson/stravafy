@@ -4,6 +4,7 @@ from src.utils.encryption import Encryption
 from src.utils.spotify_auth_handler import SpotifyAuthHandler
 import webbrowser
 from starlette.exceptions import HTTPException
+from typing import List
 
 class SpotifyAPIAdapter:
     client_id: str
@@ -41,3 +42,19 @@ class SpotifyAPIAdapter:
             return access_token
         else:
             raise HTTPException("No auth code returned")
+        
+    def get_recently_played_tracks(self, start: int, end: int) -> str:
+        """
+        start: epoch timestamp
+        end: epoch timestamp
+        """
+        url = "https://api.spotify.com/v1/me/player/recently-played"
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        params = {
+            "after": start
+        }
+        resp = self.session.get(url, headers=headers, params=params)
+        return resp.json()
+
+    def model_tracks(self) -> List[Track]:
+        pass
