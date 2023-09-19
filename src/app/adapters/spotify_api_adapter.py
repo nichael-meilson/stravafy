@@ -2,6 +2,7 @@ import requests
 from src.utils import read_config
 from src.utils.encryption import Encryption
 from src.utils.spotify_auth_handler import SpotifyAuthHandler
+from src.models.track import Track
 import webbrowser
 from starlette.exceptions import HTTPException
 from typing import List
@@ -43,7 +44,7 @@ class SpotifyAPIAdapter:
         else:
             raise HTTPException("No auth code returned")
         
-    def get_recently_played_tracks(self, start: int, end: int) -> str:
+    def get_recently_played_tracks(self, start: int, end: int) -> List:
         """
         start: epoch timestamp
         end: epoch timestamp
@@ -56,5 +57,46 @@ class SpotifyAPIAdapter:
         resp = self.session.get(url, headers=headers, params=params)
         return resp.json()
 
-    def model_tracks(self) -> List[Track]:
-        pass
+    def model_tracks(self, tracks: List) -> List[Track]:
+        track_list = []
+        for track in tracks['items']:
+            modelled_track = Track(
+                id=track["track"]["id"],
+                title=track["track"]["name"],
+                artist=[artist["name"] for artist in track["track"]["artists"]],
+                album=track["track"]["album"]["name"],
+                release_date=track["track"]["album"]["release_date"],
+                played_at=track["played_at"],
+                track_length=track["track"]["duration_ms"]
+            )
+            track_list.append(modelled_track)
+        return track_list
+    
+    def get_track_metadata(self, tracks: List[Track]) -> List[Track]:
+        """
+        Add metadata to tracks
+        """
+        tracks_with_metadata = []
+        metadata_features = ["acousticness","danceability","energy","instrumentalness","speechiness","tempo","valence"]
+        ids = []
+        for track in tracks:
+            ids.append(track.id)
+        url = "https://api.spotify.com/v1/audio-features"
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        params = {"ids": str(ids).replace("[","").replace("]","").replace("'","").replace(" ","")}
+        resp = self.session.get(url, headers=headers, params=params)
+        data = resp.json()
+        for features in data["audio_features"]:
+            for track in tracks:
+                if features["id"] == track.id:
+                    track.set_features(features, metadata_features)
+                    tracks_with_metadata.append(track)
+        
+        return tracks_with_metadata
+
+
+
+
+
+
+

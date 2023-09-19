@@ -1,23 +1,27 @@
 import pydantic
-from typing import List, Dict, Double
+from typing import List, Dict
 
 class Track(pydantic.BaseModel):
-    id: int = pydantic.Field(..., description="Internal Spotify ID of the track.")
-    played_at: str = pydantic.Field(..., "Timestamp when track was played.")
-    track_length: int = pydantic.Field(None, "Duration of track (in ms).")
-    acousticness: float = pydantic.Field(None, "Acousticness rating (0-1.0).")
-    danceability: float = pydantic.Field(None, "Danceability rating (0-1.0).")
-    energy: float = pydantic.Field(None, "Energy rating (0-1.0).")
-    instrumentalness: float = pydantic.Field(None, "Instrumentalness rating (0-1.0).")
-    speechiness: float = pydantic.Field(None, "Speechiness rating (0-1.0).")
-    tempo: float = pydantic.Field(None, "BPM of the track.")
-    valence: float = pydantic.Field(None, "Percieved 'happiness' of the track.")
+    id: str = pydantic.Field(..., description="Internal Spotify ID of the track.")
+    title: str = pydantic.Field(..., description="Track title.")
+    artist: List[str] = pydantic.Field(..., description="Track artist.")
+    album: str = pydantic.Field(..., description="Track album.")
+    release_date: str = pydantic.Field(..., description="Track release year.")
+    played_at: str = pydantic.Field(..., description="Timestamp when track was played.")
+    track_length: int = pydantic.Field(..., description="Duration of track (in ms).")
+    acousticness: float = pydantic.Field(None, description="Acousticness rating (0-1.0).")
+    danceability: float = pydantic.Field(None, description="Danceability rating (0-1.0).")
+    energy: float = pydantic.Field(None, description="Energy rating (0-1.0).")
+    instrumentalness: float = pydantic.Field(None, description="Instrumentalness rating (0-1.0).")
+    speechiness: float = pydantic.Field(None, description="Speechiness rating (0-1.0).")
+    tempo: float = pydantic.Field(None, description="BPM of the track.")
+    valence: float = pydantic.Field(None, description="Percieved 'happiness' of the track.")
 
     
-    def set_streams(self, streams: Dict):
-        for key in ["heartrate", "time", "distance"]:
-            if key in streams.keys():
-                setattr(self, key, streams.get(key).get('data'))
+    def set_features(self, features: Dict, feature_titles: List):
+        for key in feature_titles:
+            if key in features.keys():
+                setattr(self, key, features.get(key))
 
             
     
