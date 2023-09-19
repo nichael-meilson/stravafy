@@ -1,5 +1,4 @@
-import yaml
-from src.utils.encryption import Encryption
+from utils.encryption import Encryption
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
 from utils import read_config

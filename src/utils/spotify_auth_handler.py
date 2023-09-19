@@ -1,7 +1,7 @@
-from src.utils.encryption import Encryption
+from utils.encryption import Encryption
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
-from src.utils import read_config
+from utils import read_config
 
 class SpotifyAuthHandler:
     client_id: str

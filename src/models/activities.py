@@ -18,4 +18,5 @@ class Activity(pydantic.BaseModel):
                 setattr(self, key, streams.get(key).get('data'))
 
             
-    
+class Activities(pydantic.BaseModel):
+    activities: List[Activity]

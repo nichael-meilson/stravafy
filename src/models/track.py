@@ -24,4 +24,5 @@ class Track(pydantic.BaseModel):
                 setattr(self, key, features.get(key))
 
             
-    
+class Tracks(pydantic.BaseModel):
+    tracks: List[Track]

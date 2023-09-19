@@ -1,7 +1,7 @@
 import os
 from cryptography.fernet import Fernet
 import base64
-from src.interfaces.encryption_interface import EncryptionInterface
+from interfaces.encryption_interface import EncryptionInterface
 
 def create_fernet() -> Fernet:
     key_string = os.environ["SECRET_KEY"].encode()

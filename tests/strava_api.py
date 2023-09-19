@@ -7,4 +7,3 @@ if __name__ == "__main__":
     activities = adapter.get_strava_activity_streams(modelled_activities)
     print(activities)
        
-       

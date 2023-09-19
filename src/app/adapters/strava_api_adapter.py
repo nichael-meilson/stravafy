@@ -1,17 +1,12 @@
 import requests
 import webbrowser
-from datetime import datetime
-from src.utils import read_config
-from src.utils.encryption import Encryption
-from src.utils.strava_auth_handler import StravaAuthHandler
-from src.models.activities import Activity
+from selenium import webdriver
+from utils import read_config, convert_string_date_to_epoch
+from utils.encryption import Encryption
+from utils.strava_auth_handler import StravaAuthHandler
+from models.activities import Activity
 from starlette.exceptions import HTTPException
 from typing import List, Dict
-
-def _convert_string_date_to_epoch(date: str) -> int:
-    date_object = datetime.strptime(date, "%Y-%m-%d")
-    epoch_time = (date_object - datetime(1970, 1, 1)).total_seconds()
-    return epoch_time 
 
 
 class StravaAPIAdapter:
@@ -30,7 +25,15 @@ class StravaAPIAdapter:
         redirect_uri = "http://localhost:5000"
 
         auth_url = f"{url}?client_id={self.client_id}&redirect_uri={redirect_uri}&response_type=code&scope=read&scope=activity:read_all&approval_prompt=force"
-        webbrowser.open(auth_url)
+
+        print("strava setup here")
+        options = webdriver.ChromeOptions()
+        options.add_argument('--headless')  # Run Chrome in headless mode
+        options.add_argument('--no-sandbox')  # Required when running as root in Docker
+
+        driver = webdriver.Chrome(options=options)
+        print("strava attempt here")
+        driver.get(auth_url)
 
         handler_response = StravaAuthHandler()
         handler_response.handle_request()
@@ -49,8 +52,8 @@ class StravaAPIAdapter:
             raise HTTPException("No auth code returned")
 
     def get_strava_activities(self, start: str, end: str) -> str:
-        start_epoch = _convert_string_date_to_epoch(start)
-        end_epoch = _convert_string_date_to_epoch(end)
+        start_epoch = convert_string_date_to_epoch(start)
+        end_epoch = convert_string_date_to_epoch(end)
 
         URL = "https://www.strava.com/api/v3/athlete/activities"
         headers = {"Authorization": f"Bearer {self.access_token}"}
