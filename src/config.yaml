@@ -1,6 +1,7 @@
 strava_credentials:
   client_id: "gAAAAABk7Jabqej5AJiJ89XnM81Zvvs28CT3peKNnKJgpYc5JwJDFqInzY3UzpFiwmgykoMpAgcPM-i2AAmbHP-l86k-v02gnQ=="
   client_secret: "gAAAAABk7MROsae75HOvQNPMGotxs1AGYPmDuu0E8gIBd4tapHOjqD4pb1W7t5bNdM_LXKSw5IhQy1wMcyXopJWn6c1LMcRCQ-aZG0l1L2EUvnNeoTNyvmTmyt4HzAvRZN2iK4-5yE5E"
+  redirect_uri: "http://localhost:5000"
   
 spotify_credentials:
   client_id: "gAAAAABlBZPiCRUHSNNjOshIyySEt0jsm8fe9jWuJ6bPrW802PCgr1GC0i7vBpVva2cvJr8haA89l1TX5vWRM4qZHNoCcDqBp1vI-a042V29XsaorP-UL45NcmIdIOp5kbXwGn_2xyLR"
