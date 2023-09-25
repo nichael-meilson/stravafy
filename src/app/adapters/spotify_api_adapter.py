@@ -1,5 +1,6 @@
 import requests
 from utils import read_config, convert_string_date_to_epoch
+import webbrowser
 from utils.encryption import Encryption
 from utils.spotify_auth_handler import SpotifyAuthHandler
 from models.track import Track
@@ -25,16 +26,7 @@ class SpotifyAPIAdapter:
         redirect_uri = "http://localhost:5000"
 
         auth_url = f"{url}?client_id={self.client_id}&redirect_uri={redirect_uri}&response_type=code&scope=user-read-recently-played&approval_prompt=force"
-
-
-        print("spotify setup here")
-        options = webdriver.ChromeOptions()
-        options.add_argument('--headless')  # Run Chrome in headless mode
-        options.add_argument('--no-sandbox')  # Required when running as root in Docker
-
-        driver = webdriver.Chrome(options=options)
-        print("spotify attempt here")
-        driver.get(auth_url)
+        webbrowser.open(auth_url)
 
         handler_response = SpotifyAuthHandler()
         handler_response.handle_request()
@@ -53,15 +45,15 @@ class SpotifyAPIAdapter:
         else:
             raise HTTPException("No auth code returned")
         
-    def get_recently_played_tracks(self, start: int, end: int) -> List:
+    def get_recently_played_tracks(self, start: str, end: str) -> List:
         """
-        start: epoch timestamp
-        end: epoch timestamp
+        start: string timestamp "YYYY-mm-dd"
+        end: string timestamp "YYYY-mm-dd"
         """
         url = "https://api.spotify.com/v1/me/player/recently-played"
         headers = {"Authorization": f"Bearer {self.access_token}"}
         params = {
-            "before": end
+            "after": convert_string_date_to_epoch(end)
         }
         resp = self.session.get(url, headers=headers, params=params)
         return resp.json()

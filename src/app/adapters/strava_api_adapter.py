@@ -1,6 +1,5 @@
 import requests
 import webbrowser
-from selenium import webdriver
 from utils import read_config, convert_string_date_to_epoch
 from utils.encryption import Encryption
 from utils.strava_auth_handler import StravaAuthHandler
@@ -23,18 +22,8 @@ class StravaAPIAdapter:
     def authorize_strava_api(self) -> str:
         url = f"https://www.strava.com/oauth/authorize"
         redirect_uri = "http://localhost:5000"
-
         auth_url = f"{url}?client_id={self.client_id}&redirect_uri={redirect_uri}&response_type=code&scope=read&scope=activity:read_all&approval_prompt=force"
-
-        print("strava setup here")
-        options = webdriver.ChromeOptions()
-        options.add_argument('--headless')  # Run Chrome in headless mode
-        options.add_argument('--no-sandbox')  # Required when running as root in Docker
-
-        driver = webdriver.Chrome(options=options)
-        print("strava attempt here")
-        driver.get(auth_url)
-
+        webbrowser.open(auth_url)
         handler_response = StravaAuthHandler()
         handler_response.handle_request()
         if handler_response.auth_code:
@@ -49,7 +38,7 @@ class StravaAPIAdapter:
             access_token = response.json().get('access_token')
             return access_token
         else:
-            raise HTTPException("No auth code returned")
+            raise HTTPException(403, "No auth token returned")
 
     def get_strava_activities(self, start: str, end: str) -> str:
         start_epoch = convert_string_date_to_epoch(start)
