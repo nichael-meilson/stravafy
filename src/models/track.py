@@ -25,4 +25,7 @@ class Track(pydantic.BaseModel):
 
             
 class Tracks(pydantic.BaseModel):
-    tracks: List[Track]
+    tracks: List[Track] = pydantic.Field(None, description="List of tracks")
+
+    def set_tracks(self, tracks: List[Track]):
+        self.tracks = tracks

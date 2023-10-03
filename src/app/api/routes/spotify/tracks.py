@@ -14,12 +14,14 @@ router = APIRouter()
     name="spotify:tracks",
     status_code=HTTP_200_OK
 )
-async def get_strava_activities(
+async def get_spotify_tracks(
     end_date: str
 ):
     adapter = SpotifyAPIAdapter()
-    landed_tracks = adapter.get_recently_played_tracks(end=end_date)
+    result_tracks = Tracks()
+    landed_tracks = adapter.get_recently_played_tracks(end_date)
     modelled_tracks = adapter.model_tracks(landed_tracks)
     tracks = adapter.get_track_metadata(modelled_tracks)
-    return tracks
+    result_tracks.set_tracks(tracks)
+    return result_tracks
 
