@@ -3,12 +3,11 @@ FROM python:3.11-slim
 WORKDIR /src
 
 # install system dependencies
-RUN apt-get update && apt-get install -y chromium-driver
+RUN apt-get update
 
-# Set environment variable to run Chrome in headless mode
-ENV CHROME_DRIVER_BINARY=/usr/bin/chromium-browser
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONBUFFERED 1
+# HINT: All 3x2 + Bondy
 ENV SECRET_KEY foo
 
 # install python dependencies
