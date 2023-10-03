@@ -1,57 +1,48 @@
-from fastapi import APIRouter, Request, HTTPException
-from fastapi.responses import RedirectResponse
-import requests
-from urllib.parse import urlencode
+from fastapi import APIRouter
+from fastapi import Depends, HTTPException
 from utils import read_config
 from utils.encryption import Encryption
+from fastapi import FastAPI, Depends, HTTPException, Request, Query
+from fastapi.responses import RedirectResponse
+import requests
 
 router = APIRouter()
-
 config = read_config()
+CLIENT_ID = Encryption().decrypt_string(config["strava_credentials"]["client_id"])
+CLIENT_SECRET = Encryption().decrypt_string(config["strava_credentials"]["client_secret"])
 
-# Endpoint to initiate Strava OAuth flow
-@router.get("/auth")
+STRAVA_AUTH_URL = "https://www.strava.com/oauth/authorize"
+STRAVA_TOKEN_URL = "https://www.strava.com/oauth/token"
+STRAVA_REDIRECT_URI = "http://localhost:8000/api/auth/strava/callback"
+
+@router.get("/auth/strava")
 def start_strava_auth(request: Request):
-    strava_auth_url = (
-        "https://www.strava.com/oauth/authorize?"
-        + urlencode(
-            {
-                "client_id": Encryption().decrypt_string(config["strava_credentials"]["client_id"]),
-                "redirect_uri": config["strava_credentials"]["redirect_uri"],
-                "response_type": "code",
-                "scope": "read,activity:read_all",
-                "approval_prompt": "force",
-            }
-        )
-    )
+    # Redirect the user to the Strava OAuth authorization URL
+    strava_auth_url = f"https://www.strava.com/oauth/authorize?client_id={CLIENT_ID}&redirect_uri={STRAVA_REDIRECT_URI}&response_type=code&scope=read,activity:read_all&approval_prompt=force"
     return RedirectResponse(url=strava_auth_url)
 
-# Callback route to handle Strava authorization callback
-@router.get("/auth/callback")
-def strava_auth_callback(code: str, state: str = None):
-    global authorization_code
-    authorization_code = code
-    return {"message": "Strava authorization code received. You can close this tab now."}
+# Endpoint to handle the callback from Strava after authorization
+@router.get("/auth/strava/callback")
+async def strava_auth_callback(request: Request, code: str = Query(None)):
+    # Extract the 'code' parameter from the callback URL
+    if not code:
+        raise HTTPException(status_code=400, detail="Authorization code is missing")
+    
 
-# Endpoint to exchange authorization code for access token
-@router.get("/get_access_token")
-def get_access_token():
-    global authorization_code
-    if authorization_code is None:
-        raise HTTPException(status_code=403, detail="No authorization code received")
-
+    # Use the 'code' to request an access token from Strava
     token_url = "https://www.strava.com/oauth/token"
-    payload = {
-        "client_id": Encryption().decrypt_string(config["strava_credentials"]["client_id"]),
-        "client_secret": Encryption().decrypt_string(config["strava_credentials"]["client_secret"]),
-        "code": authorization_code,
-        "grant_type": "authorization_code",
+    data = {
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET,
+        "code": code,
+        "grant_type": "authorization_code"
     }
 
-    response = requests.post(token_url, data=payload)
+    response = requests.post(token_url, data=data)
 
     if response.status_code == 200:
         access_token = response.json().get("access_token")
         return {"access_token": access_token}
     else:
-        raise HTTPException(status_code=response.status_code, detail="Failed to obtain access token")
+        raise HTTPException(status_code=response.status_code, detail="Failed to obtain access token from Strava")
+
