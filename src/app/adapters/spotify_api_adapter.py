@@ -1,6 +1,6 @@
 import requests
 from utils import read_config, convert_string_date_to_epoch
-import webbrowser
+import os
 from utils.encryption import Encryption
 from utils.spotify_auth_handler import SpotifyAuthHandler
 from models.track import Track
@@ -22,6 +22,15 @@ class SpotifyAPIAdapter:
 
 
     def authorize_spotify_api(self) -> str:
+        # """
+        # Only works after the user has called the /auth/strava endpoint
+        # Only works if STRAVA_ACCESS_TOKEN is in an env var
+        # """
+        # access_token = os.environ.get("SPOTIFY_ACCESS_TOKEN")
+        # if access_token:
+        #     return access_token
+        # else:
+        #     raise "No auth token returned - did the user authorize Spotify?"
         url = f"https://accounts.spotify.com/authorize"
         redirect_uri = "http://localhost:5000"
 

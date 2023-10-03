@@ -22,6 +22,7 @@ class StravaAPIAdapter:
     def authorize_strava_api(self) -> str:
         """
         Only works after the user has called the /auth/strava endpoint
+        Only works if STRAVA_ACCESS_TOKEN is in an env var
         """
         access_token = os.environ.get("STRAVA_ACCESS_TOKEN")
         if access_token:

@@ -2,8 +2,6 @@ from fastapi import APIRouter
 from app.adapters.strava_api_adapter import StravaAPIAdapter
 from starlette.status import HTTP_200_OK
 from models.activities import Activities
-from typing import List
-import pydantic
 
 
 router = APIRouter()
