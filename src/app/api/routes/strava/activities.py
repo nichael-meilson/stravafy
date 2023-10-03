@@ -19,8 +19,10 @@ async def get_strava_activities(
     end_date: str
 ):
     adapter = StravaAPIAdapter()
+    result_activities = Activities()
     landed_activities = adapter.get_strava_activities(start_date, end_date)
     modelled_activities = adapter.model_strava_activities(landed_activities)
-    activities = adapter.get_strava_activity_streams(modelled_activities)
-    return activities
+    clean_activities = adapter.get_strava_activity_streams(modelled_activities)
+    result_activities.set_activities(clean_activities)
+    return result_activities
 

@@ -7,7 +7,7 @@ class Activity(pydantic.BaseModel):
     activity_type: str = pydantic.Field(..., description="Type of activity (run, bike, swim, etc...).")
     timezone: str = pydantic.Field(..., description="Timezone activity took place in.")
     start_date: str = pydantic.Field(..., description="Start datetime (UTC) of the activity.")
-    suffer_score: int = pydantic.Field(..., description="Suffer score of the activity.")
+    suffer_score: int = pydantic.Field(None, description="Suffer score of the activity.")
     heartrate: List[int] = pydantic.Field(None, description="Stream data of heart rate (BPM).")
     time: List[int] = pydantic.Field(None, description="Stream data of time of activity (Seconds).")
     distance: List[int] = pydantic.Field(None, description="Stream data of distance of activity (Metres).")
@@ -19,4 +19,7 @@ class Activity(pydantic.BaseModel):
 
             
 class Activities(pydantic.BaseModel):
-    activities: List[Activity]
+    activities: List[Activity] = pydantic.Field(None, description="List of activities")
+
+    def set_activities(self, activities: List[Activity]):
+        self.activities = activities

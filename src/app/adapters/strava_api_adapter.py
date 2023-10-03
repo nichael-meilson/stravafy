@@ -1,5 +1,5 @@
 import requests
-import webbrowser
+import os
 from utils import read_config, convert_string_date_to_epoch
 from utils.encryption import Encryption
 from utils.strava_auth_handler import StravaAuthHandler
@@ -20,25 +20,14 @@ class StravaAPIAdapter:
         self.access_token: str = self.authorize_strava_api()
 
     def authorize_strava_api(self) -> str:
-        url = f"https://www.strava.com/oauth/authorize"
-        redirect_uri = "http://localhost:5000"
-        auth_url = f"{url}?client_id={self.client_id}&redirect_uri={redirect_uri}&response_type=code&scope=read&scope=activity:read_all&approval_prompt=force"
-        webbrowser.open(auth_url)
-        handler_response = StravaAuthHandler()
-        handler_response.handle_request()
-        if handler_response.auth_code:
-            token_url = "https://www.strava.com/oauth/token"
-            payload = {
-                "client_id": handler_response.client_id,
-                "client_secret": handler_response.client_secret,
-                "code": handler_response.auth_code,
-                "grant_type": "authorization_code"
-            }
-            response = requests.post(token_url, data=payload)
-            access_token = response.json().get('access_token')
+        """
+        Only works after the user has called the /auth/strava endpoint
+        """
+        access_token = os.environ.get("STRAVA_ACCESS_TOKEN")
+        if access_token:
             return access_token
         else:
-            raise HTTPException(403, "No auth token returned")
+            raise "No auth token returned - did the user authorize Strava?"
 
     def get_strava_activities(self, start: str, end: str) -> str:
         start_epoch = convert_string_date_to_epoch(start)
