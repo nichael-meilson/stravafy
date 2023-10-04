@@ -24,7 +24,7 @@ class SpotifyAPIAdapter:
     def authorize_spotify_api(self) -> str:
         """
         Only works after the user has called the /auth/strava endpoint
-        Only works if STRAVA_ACCESS_TOKEN is in an env var
+        Only works if SPOTIFY_ACCESS_TOKEN is in an env var
         """
         access_token = os.environ.get("SPOTIFY_ACCESS_TOKEN")
         if access_token:
@@ -32,15 +32,15 @@ class SpotifyAPIAdapter:
         else:
             raise "No auth token returned - did the user authorize Spotify?"
         
-    def get_recently_played_tracks(self, end: str) -> List:
+    def get_recently_played_tracks(self, end: int) -> List:
         """
-        start: string timestamp "YYYY-mm-dd"
-        end: string timestamp "YYYY-mm-dd"
+        end: epoch timestamp
         """
         url = "https://api.spotify.com/v1/me/player/recently-played"
         headers = {"Authorization": f"Bearer {self.access_token}"}
         params = {
-            "after": convert_string_date_to_epoch(end)
+            "after": end,
+            "limit": 50
         }
         resp = self.session.get(url, headers=headers, params=params)
         return resp.json()
