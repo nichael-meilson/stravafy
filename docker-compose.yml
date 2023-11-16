@@ -10,3 +10,18 @@ services:
     command: uvicorn app.api.server:app --reload --workers 1 --host 0.0.0.0 --port 8000
     ports:
       - 8000:8000
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: zebra123!
+      POSTGRES_DB: stravafy_db
+    volumes:
+      - ./src/db/sql_ddl:/docker-entrypoint-initdb.d 
+    init: true
+    ports:
+      - 5432:5432
+
+volumes:
+  postgres_data:

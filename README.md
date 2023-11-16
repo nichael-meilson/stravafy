@@ -20,16 +20,20 @@
 * Create user sessions somehow
     * Set up Strava webhook that triggers the app when a new Strava activity is loaded for a user based on their IDs
     * Create a user model
+    * Change current endpoint
 * Move encryption secret somewhere secure (DB?)
     * Related: Audit token handling
+    * Change encryption to hashing
 * Add a DB (Postgres?)
-    * Run a DB container
-    * Create DB interface
-    * Create schema based on current models
+    * ???IS ANY OF THIS GDPR COMPLIANT???
+    * ~Run a DB container~
+    * ~Create DB interface~
+    * ~Create schema based on current models~
     * Change token storage to DB
-    * Set up token refresh (Maybe?)
+    * Set up token refresh (Probably?)
     * Save activity data to DB
     * Get last 50 Spotify tracks played when the activity is loaded to the DB
+        * Change current endpoint
     * Save track data to DB
 * NOTE: this creates a limitation that we can only analyze the last 50 tracks played from the point in time the Strava activity is loaded to the DB, with no workaround
 * NOTE: For this to work in a practical sense, it actually needs to be deployed somewhere
